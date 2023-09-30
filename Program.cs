@@ -15,6 +15,7 @@ using (var scrope = app.Services.CreateScope())
 
 app.MapGet("/", () => "Hello Word!");
 
+app.UseStaticFiles();
 app.AddAuthenAPI();
 
 app.Run();

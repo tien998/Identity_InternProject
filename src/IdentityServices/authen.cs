@@ -6,25 +6,12 @@ namespace IdentityServices.Authentication;
 public class AuthenManager
 {
     AuthenDb? _authenDb;
-    int iteration = 1000;
-    int saltSize = 32;
-    int keySize = 32;
+    string? _JwtSecreatKey;
     Aes? aesAlg;
-    HashAlgorithmName hashAlgorithm = HashAlgorithmName.SHA1;
 
     public void Register(string userName, string password, HttpContext httpContext)
     {
-        // Salt
-        byte[] saltByte = CreateSalt();
-        // Key
-        var SaltKey = CreateKey(password, saltByte);
-        aesAlg = Aes.Create();
-        // IV
-        aesAlg.GenerateIV();
-        // Hash pw
-        var hashPassword = EncryptPassword(password, SaltKey, aesAlg.IV);
-        aesAlg.Dispose();
-        string? saltBase64 = Convert.ToBase64String(SaltKey).ToString();
+        CreateHashPassPrinciple(password, out string hashPassword, out string saltBase64);
         User user = new()
         {
             UserName = userName,
@@ -35,88 +22,120 @@ public class AuthenManager
         var user_inDB = userEntry.Entity;
 
         _authenDb!.SaveChanges();
-        string roleName = RoleProvider.AddRoleGuest(user_inDB, _authenDb);
-        string jwt = Identity.CreateJWT(user_inDB.UserName!, roleName);
+        // string roleName = RoleProvider.AddRoleGuest(user_inDB, _authenDb);
+        string jwt = Identity.CreateJWT(user_inDB.UserName!, _JwtSecreatKey!);
         httpContext.Response.Headers.Add("Authorization", $"Bearer {jwt}");
         httpContext.Response.StatusCode = 200;
     }
-
 
     public void SignIn(string userName, string password, HttpContext httpContext)
     {
         var user = _authenDb!.User.Where(e => e.UserName == userName).FirstOrDefault();
         string? salt = user!.Salt;
         byte[] saltKeyByte = Convert.FromBase64String(salt!);
-        byte[] IV = GetIV(user.Hash_password);
+        byte[] IV = Identity.GetIV(user.Hash_password);
         aesAlg = Aes.Create();
-        var hashPassword = EncryptPassword(password, saltKeyByte, IV);
+        var hashPassword = Identity.EncryptPassword(password, saltKeyByte, aesAlg, IV);
         aesAlg.Dispose();
         // Compare hashPassword
         if (hashPassword == user.Hash_password)
         {
             // Đăng nhập thành công
-            var user_role = from User in _authenDb.User
-                           join Role_User in _authenDb.Role_User
-                           on User.Id equals Role_User.User_Id
-                           where User.UserName == userName 
-                           select new
-                           {
-                               userName = User.UserName,
-                               roleID = Role_User.Role_Id,
-                           };
-            var ur = user_role.FirstOrDefault();
-            string jwt = Identity.CreateJWT(ur!.userName, ur.roleID);
-            httpContext.Response.Headers.Add("Authorization", $"Bearer {jwt}");
+            try
+            {
+                var user_role = from User in _authenDb.User
+                                join Role_User in _authenDb.Role_User
+                                on User.Id equals Role_User.User_Id
+                                where User.UserName == userName
+                                select new
+                                {
+                                    userName = User.UserName,
+                                    roleID = Role_User.Role_Id,
+                                };
+                var ur = user_role.FirstOrDefault();
+                string jwt = Identity.CreateJWT(ur!.userName, ur.roleID, _JwtSecreatKey!);
+                httpContext.Response.Headers.Add("Authorization", $"Bearer {jwt}");
+            }
+            catch
+            {
+                string jwt = Identity.CreateJWT(user!.UserName!, _JwtSecreatKey!);
+                httpContext.Response.Headers.Add("Authorization", $"Bearer {jwt}");
+            }
             httpContext.Response.StatusCode = 200;
         }
         else
+        {
             httpContext.Response.StatusCode = 401;
-    }
-    byte[] CreateSalt()
-    {
-        byte[] salt = new byte[saltSize];
-        var generator = RandomNumberGenerator.Create();
-        generator.GetBytes(salt);
-        generator.Dispose();
-        return salt;
-    }
-    byte[] GetIV(string? hashPassword)
-    {
-        string[] pwSplit = hashPassword!.Split(".");
-        string IV = pwSplit[0];
-        return Convert.FromBase64String(IV);
-    }
-    byte[] CreateKey(string? password, byte[] saltByte)
-    {
-        Rfc2898DeriveBytes deriveBytes = new(password!, saltByte, iteration, hashAlgorithm);
-        var key = deriveBytes.GetBytes(keySize);
-        deriveBytes.Dispose();
-        return key;
+        }
     }
 
-    /// <summary>
-    /// Construct Aes using "aesAlg = Aes.Create();" before use this function. After, dispose Aes
-    /// </summary>
-    string EncryptPassword(string password, byte[] key, byte[] IV)
+    public void SendEmailResetPassword(string emailTo)
     {
-        string? IVstr;
-        string? hashPasswordStr;
-        using (MemoryStream stream = new())
+        var user = (from User in _authenDb!.User
+                    where User.Email == emailTo
+                    select User)
+               .FirstOrDefault();
+        int userID = user!.Id;
+        string userName = user.UserName!;
+        string guid = Guid.NewGuid().ToString();
+        DateTime expiry = DateTime.UtcNow.AddMinutes(15);
+        _authenDb.ResetPassToken.Add(new ResetPassToken(userID, guid, expiry));
+        _authenDb.SaveChanges();
+        SendMailService? sendMail = new();
+        sendMail.SendEmailPasswordReset(emailTo, guid, userID, userName);
+        user = null;
+        sendMail = null;
+    }
+
+    public void ValidateAndResetPassword(string guid, int userID, string password, HttpContext httpContext)
+    {
+        var resetToken = (from ResetPassToken in _authenDb!.ResetPassToken
+                          where ResetPassToken.User_Id == userID && ResetPassToken.Guid == guid
+                          select ResetPassToken).FirstOrDefault();
+        if (resetToken!.Guid == guid && resetToken.User_Id == userID)
         {
-            using (CryptoStream encrypt = new(stream, aesAlg!.CreateEncryptor(key, IV), CryptoStreamMode.Write))
+            if (resetToken.ExpiryTime < DateTime.Now)
             {
-                StreamWriter writer = new(encrypt);
-                writer.Write(password);
-                writer.Dispose();
+                // Create new hash password
+                var user = (from User in _authenDb.User
+                            where User.Id == userID
+                            select User).FirstOrDefault();
+                CreateHashPassPrinciple(password, out string hashPassword, out string saltBase64);
+                user!.Hash_password = hashPassword;
+                user.Salt = saltBase64;
+                _authenDb.SaveChanges();
+                resetToken = null;
             }
-            hashPasswordStr = Convert.ToBase64String(stream.ToArray());
+            else
+            {
+                httpContext.Response.StatusCode = 401;
+            }
         }
-        IVstr = Convert.ToBase64String(IV);
-        return IVstr + "." + hashPasswordStr;
+    }
+
+    void CreateHashPassPrinciple(string password, out string hashPassword, out string saltBase64)
+    {
+        // Salt
+        byte[] saltByte = Identity.CreateSalt();
+        // Key
+        byte[] saltKey = Identity.CreateKey(password, saltByte);
+        aesAlg = Aes.Create();
+        // IV
+        aesAlg.GenerateIV();
+        // Hash pw
+        hashPassword = Identity.EncryptPassword(password, saltKey, aesAlg, aesAlg.IV);
+        aesAlg.Dispose();
+        saltBase64 = Convert.ToBase64String(saltKey).ToString();
     }
 
     public AuthenManager(AuthenDb authenDb)
     {
         _authenDb = authenDb;
+        ConfigurationBuilder? confBuilder = new();
+        confBuilder.AddJsonFile(Directory.GetCurrentDirectory() + "/appsettings.json");
+        var root = confBuilder.Build();
+        _JwtSecreatKey = root.GetSection("JWTSecurityKey").Value!;
+        confBuilder = null;
+        root = null;
     }
 }
