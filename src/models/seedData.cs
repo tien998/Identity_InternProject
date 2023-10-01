@@ -1,4 +1,6 @@
+using IdentityServices.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Model.AuthenModels;
 
 public static class SeedData
 {
@@ -15,24 +17,44 @@ public static class SeedData
             }
             context.Role.AddRange(
                 new[]{
-                    new Model.AuthenModels.Role()
+                    new Role()
                     {
                         Id="sa",
                         RoleName="Supper Admin",
                         Description="Ultimate Right Admin",
                     },
-                    new Model.AuthenModels.Role()
+                    new Role()
                     {
-                        Id="guest",
-                        RoleName="Guest User",
-                        Description="Guest User",
+                        Id="teacher",
+                        RoleName="Teaher User",
+                        Description="Teacher User",
                     },
-                    new Model.AuthenModels.Role()
+                    new Role()
                     {
                         Id="student",
                         RoleName="Student User",
                         Description="Student User",
                     }
+                }
+            );
+            AuthenManager? authenManager = new(context);
+            authenManager.CreateHashPassPrinciple("123456", out string hashPassword, out string saltBase64);
+            var userEntity = context.User.Add(
+                new User()
+                {
+                    UserName = "sa",
+                    Hash_password = hashPassword,
+                    Salt = saltBase64,
+                }
+            );
+            authenManager = null;
+            context.SaveChanges();
+            var user = userEntity.Entity;
+            context.Role_User.Add(
+                new Role_User()
+                {
+                    User_Id = user.Id,
+                    Role_Id = "sa"
                 }
             );
             context.SaveChanges();

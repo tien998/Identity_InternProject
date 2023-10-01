@@ -7,11 +7,28 @@ public static class AuthenAPI
     {
         app.MapPost("/register", (UserDTO user, HttpContext httpContext, AuthenManager authenManager) =>
         {
-            authenManager.Register(user.UserName!, user.Password!, httpContext);
+            authenManager.Register_Guest(user.UserName!, user.Password!, httpContext);
+        });
+        app.MapPost("/registerStudentUser", (StudentUserDTO user, HttpContext httpContext, AuthenManager authenManager) =>
+        {
+            string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
+            string jwt = JwtBearer.Split(" ")[1];
+            bool isValid = authenManager.AuthorizeChecking(jwt, RolesList.sa, httpContext);
+            if (isValid)
+            {
+                authenManager.Register_Student(user, httpContext);
+            }
         });
         app.MapPost("/signin", (UserDTO user, HttpContext httpContext, AuthenManager authenManager) =>
         {
-            authenManager.SignIn(user.UserName!, user.Password!, httpContext);
+            try
+            {
+                authenManager.SignIn(user.UserName!, user.Password!, httpContext);
+            }
+            catch
+            {
+                httpContext.Response.StatusCode = 401;
+            }
         });
         app.MapPost("/sendEmailResetPassword", (EmailDTO email, AuthenManager authenManager, HttpContext httpContext) =>
         {
@@ -35,6 +52,15 @@ public static class AuthenAPI
             {
                 httpContext.Response.WriteAsync("Can't find the Email! Please check the correct of Email Address!");
             }
+        });
+
+        // This API is a test of authorize 
+        app.MapGet("/author/{jwt}", (string jwt, AuthenManager authenManager, HttpContext httpContext) =>
+        {
+            // if Authorize success! Allow excute request. 
+            // otherwise! Return 401
+            bool isAuthor = authenManager.AuthorizeChecking(jwt, RolesList.sa, httpContext);
+            return isAuthor;
         });
     }
 }

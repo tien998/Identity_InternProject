@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using IdentityServices.Authentication.DTO;
 using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityServices;
@@ -55,12 +56,13 @@ public static class Identity
         IVstr = Convert.ToBase64String(IV);
         return IVstr + "." + hashPasswordStr;
     }
-    public static string CreateJWT(string userName, string secretkey)
+    public static string CreateJWT(int UserID, string secretkey, string validIssuer)
     {
         // Create JWT
         SymmetricSecurityKey symmetricSecurityKey = new(Encoding.UTF8.GetBytes(secretkey));
         Claim[] claims = new[] {
-            new Claim(JwtRegisteredClaimNames.Name, userName),
+            new Claim(JwtPayloadConst.userID, UserID.ToString()),
+            new Claim(JwtPayloadConst.iss, validIssuer),
         };
         SecurityTokenDescriptor securityTokenDescriptor = new()
         {
@@ -73,13 +75,14 @@ public static class Identity
         return jwtSecurityTokenHandler.WriteToken(token);
     }
 
-    public static string CreateJWT(string userName, string role, string secretkey)
+    public static string CreateJWT(int UserID, string role, string secretkey, string validIssuer)
     {
         // Create JWT
         SymmetricSecurityKey symmetricSecurityKey = new(Encoding.UTF8.GetBytes(secretkey));
         Claim[] claims = new[] {
-            new Claim(JwtRegisteredClaimNames.Name, userName),
-            new Claim(ClaimTypes.Role, role),
+            new Claim(JwtPayloadConst.userID, UserID.ToString()),
+            new Claim(JwtPayloadConst.role, role),
+            new Claim(JwtPayloadConst.iss, validIssuer),
         };
         SecurityTokenDescriptor securityTokenDescriptor = new()
         {
@@ -92,16 +95,20 @@ public static class Identity
         return jwtSecurityTokenHandler.WriteToken(token);
     }
 
-    public static ClaimsPrincipal ReadJWT(string jwt, string secretkey)
+    public static ClaimsPrincipal ValidateJWT(string jwt, string secretkey, string validIssuer)
     {
         SymmetricSecurityKey securityKey = new(Encoding.ASCII.GetBytes(secretkey));
         JwtSecurityTokenHandler tokenHandler = new();
         TokenValidationParameters tokenValidationParameters = new()
         {
-            ValidateIssuer = false,
+            ValidateIssuer = true,
             ValidateAudience = false,
-            ValidateActor = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
             IssuerSigningKey = securityKey,
+            ValidIssuer = validIssuer,
+            // ValidAudiences =
+            ClockSkew = TimeSpan.Zero,
         };
         return tokenHandler.ValidateToken(jwt, tokenValidationParameters, out SecurityToken validatedToken);
     }

@@ -17,17 +17,17 @@ public static class RoleProvider
         return "sa";
     }
 
-    public static string AddRoleGuest(User user, AuthenDb context)
+    public static string AddRoleTeacher(User user, AuthenDb context)
     {
         Role_User? role_user = new()
         {
             User_Id = user.Id,
-            Role_Id = "guest"
+            Role_Id = "teacher"
         };
         context.Role_User.Add(role_user);
         role_user = null;
         context.SaveChanges();
-        return "guest";
+        return "teacher";
     }
 
     public static string AddRoleStudent(User user, AuthenDb context)
