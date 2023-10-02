@@ -14,19 +14,12 @@ public static class AuthenAPI
             string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
             string jwt = JwtBearer.Split(" ")[1];
             // Authorization function to check the role of user
-            try
+            bool isValid = authenManager.AuthorizeChecking(jwt, RolesList.sa, httpContext);
+            if (isValid)
             {
-                bool isValid = authenManager.AuthorizeChecking(jwt, RolesList.sa);
-                if (isValid)
-                {
-                    authenManager.Register_Student(user, httpContext);
-                }
-                else
-                {
-                    httpContext.Response.StatusCode = 401;
-                }
+                authenManager.Register_Student(user, httpContext);
             }
-            catch
+            else
             {
                 httpContext.Response.StatusCode = 401;
             }

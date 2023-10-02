@@ -165,7 +165,6 @@ public class AuthenManager
     /// </summary>
     /// <param name="jwt"></param>
     /// <param name="role_to_author">Take roles list from `IdentityServices.Authentication.DTO.RolesList`</param>
-    /// <param name="httpContext"></param>
     /// <returns>`true` or `false`</returns>
     public bool AuthorizeChecking(string jwt, string role_to_author)
     {
@@ -177,6 +176,36 @@ public class AuthenManager
         }
         else
         {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Authorization Functions that validate JWT and check the role of JWT 
+    /// </summary>
+    /// <param name="jwt"></param>
+    /// <param name="role_to_author">Take roles list from `IdentityServices.Authentication.DTO.RolesList`</param>
+    /// <param name="httpContext"></param>
+    /// <returns>`true` or `false`</returns>
+    public bool AuthorizeChecking(string jwt, string role_to_author, HttpContext httpContext)
+    {
+        try
+        {
+            ClaimsPrincipal claimsPrincipal = Identity.ValidateJWT(jwt, _JwtSecreatKey!, _JwtvalidIssuer!);
+            Dictionary<string, Claim> claims = claimsPrincipal.Claims.ToDictionary(e => e.Type);
+            if (claims[JwtPayloadConst.role].Value == role_to_author)
+            {
+                return true;
+            }
+            else
+            {
+                httpContext.Response.StatusCode = 401;
+                return false;
+            }
+        }
+        catch
+        {
+            httpContext.Response.StatusCode = 401;
             return false;
         }
     }
