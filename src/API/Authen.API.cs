@@ -13,6 +13,7 @@ public static class AuthenAPI
         {
             string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
             string jwt = JwtBearer.Split(" ")[1];
+            // Authorization function to check the role of user
             bool isValid = authenManager.AuthorizeChecking(jwt, RolesList.sa, httpContext);
             if (isValid)
             {
