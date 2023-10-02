@@ -14,10 +14,21 @@ public static class AuthenAPI
             string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
             string jwt = JwtBearer.Split(" ")[1];
             // Authorization function to check the role of user
-            bool isValid = authenManager.AuthorizeChecking(jwt, RolesList.sa, httpContext);
-            if (isValid)
+            try
             {
-                authenManager.Register_Student(user, httpContext);
+                bool isValid = authenManager.AuthorizeChecking(jwt, RolesList.sa);
+                if (isValid)
+                {
+                    authenManager.Register_Student(user, httpContext);
+                }
+                else
+                {
+                    httpContext.Response.StatusCode = 401;
+                }
+            }
+            catch
+            {
+                httpContext.Response.StatusCode = 401;
             }
         });
         app.MapPost("/signin", (UserDTO user, HttpContext httpContext, AuthenManager authenManager) =>
@@ -60,7 +71,7 @@ public static class AuthenAPI
         {
             // if Authorize success! Allow excute request. 
             // otherwise! Return 401
-            bool isAuthor = authenManager.AuthorizeChecking(jwt, RolesList.sa, httpContext);
+            bool isAuthor = authenManager.AuthorizeChecking(jwt, RolesList.sa);
             return isAuthor;
         });
     }

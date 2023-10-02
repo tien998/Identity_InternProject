@@ -58,7 +58,7 @@ public class AuthenManager
     public void SignIn(string userName, string password, HttpContext httpContext)
     {
         User? user = _authenDb!.User.Where(e => e.UserName == userName).FirstOrDefault();
-        if(user == null)
+        if (user == null)
         {
             user = _authenDb!.User.Where(e => e.Email == userName).FirstOrDefault();
         }
@@ -167,24 +167,16 @@ public class AuthenManager
     /// <param name="role_to_author">Take roles list from `IdentityServices.Authentication.DTO.RolesList`</param>
     /// <param name="httpContext"></param>
     /// <returns>`true` or `false`</returns>
-    public bool AuthorizeChecking(string jwt, string role_to_author, HttpContext httpContext)
+    public bool AuthorizeChecking(string jwt, string role_to_author)
     {
-        try
+        ClaimsPrincipal claimsPrincipal = Identity.ValidateJWT(jwt, _JwtSecreatKey!, _JwtvalidIssuer!);
+        Dictionary<string, Claim> claims = claimsPrincipal.Claims.ToDictionary(e => e.Type);
+        if (claims[JwtPayloadConst.role].Value == role_to_author)
         {
-            ClaimsPrincipal claimsPrincipal = Identity.ValidateJWT(jwt, _JwtSecreatKey!, _JwtvalidIssuer!);
-            Dictionary<string, Claim> claims = claimsPrincipal.Claims.ToDictionary(e => e.Type);
-            if (claims[JwtPayloadConst.role].Value == role_to_author)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return true;
         }
-        catch
+        else
         {
-            httpContext.Response.StatusCode = 401;
             return false;
         }
     }
