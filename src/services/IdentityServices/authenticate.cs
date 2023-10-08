@@ -31,7 +31,7 @@ public class AuthenManager
         httpContext.Response.StatusCode = 200;
     }
 
-    public void Register_Student(StudentUserDTO student, HttpContext httpContext)
+    public void Register_Student(StudentRq_DTO student, HttpContext httpContext)
     {
         CreateHashPassPrinciple(student.Password!, out string hashPassword, out string saltBase64);
         User user = new()
@@ -164,7 +164,7 @@ public class AuthenManager
     /// Authorization Functions that validate JWT and check the role of JWT 
     /// </summary>
     /// <param name="jwt"></param>
-    /// <param name="role_to_author">Take roles list from `IdentityServices.Authentication.DTO.RolesList`</param>
+    /// <param name="role_to_author">Take roles list from `IdentityServices.Authentication.DTO.RoleConventions`</param>
     /// <returns>`true` or `false`</returns>
     public bool AuthorizeChecking(string jwt, string role_to_author)
     {

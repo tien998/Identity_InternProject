@@ -17,5 +17,6 @@ app.MapGet("/", () => "Hello Word!");
 
 app.UseStaticFiles();
 app.AddAuthenAPI();
+app.AddStudentManagement();
 
 app.Run();

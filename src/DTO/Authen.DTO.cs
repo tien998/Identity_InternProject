@@ -1,25 +1,45 @@
 using System.Security.Claims;
+using System.Text.Json;
+using Model.AuthenModels;
 
 namespace IdentityServices.Authentication.DTO;
 
-public class UserDTO
+public class User_AuthenDTO
 {
     public string? UserName { get; set; }
     public string? Password { get; set; }
 }
 
-public class StudentUserDTO
+public class StudentRq_DTO : UserBaseDTO, IStudentUser
 {
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? DateOfBirth { get; set; }
-    public string? Gender { get; set; }
-    public string? Email { get; set; }
-    public string? Telephone { get; set; }
-    public string? Address { get; set; }
-    public string? Parents { get; set; }
     public string? Password { get; set; }
+    public string? Parents { get; set; }
     public string? Avatar { get; set; }
+}
+
+public class StudentRs_DTO : UserBaseDTO, IStudentUser
+{
+    public string? Id { get; set; }
+    public string? Parents { get; set; }
+    public StudentRs_DTO() {}
+    public StudentRs_DTO(User user) {
+        Id = user.Id.ToString();
+        FirstName = user.FirstName;
+        LastName = user.LastName;
+        DateOfBirth = JsonSerializer.Serialize(user.DateOfBirth);
+        Gender = user.Gender;
+        Email = user.Email;
+        Telephone = user.Telephone;
+        Address = user.Address;
+        Parents = user.Parents;
+    }
+}
+
+public class TeacherUserDTO : UserBaseDTO, ITeacherUser
+{
+    public string? TaxIdentificationNumber { get; set; }
+    public string? MajorSubject { get; set; }
+    public string? MinorSubject { get; set; }
 }
 
 public class EmailDTO

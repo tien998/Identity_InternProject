@@ -5,26 +5,12 @@ public static class AuthenAPI
 {
     public static void AddAuthenAPI(this WebApplication app)
     {
-        app.MapPost("/register", (UserDTO user, HttpContext httpContext, AuthenManager authenManager) =>
+        app.MapPost("/register", (User_AuthenDTO user, HttpContext httpContext, AuthenManager authenManager) =>
         {
             authenManager.Register_Guest(user.UserName!, user.Password!, httpContext);
         });
-        app.MapPost("/registerStudentUser", (StudentUserDTO user, HttpContext httpContext, AuthenManager authenManager) =>
-        {
-            string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-            string jwt = JwtBearer.Split(" ")[1];
-            // Authorization function to check the role of user
-            bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
-            if (isValid)
-            {
-                authenManager.Register_Student(user, httpContext);
-            }
-            else
-            {
-                httpContext.Response.StatusCode = 401;
-            }
-        });
-        app.MapPost("/signin", (UserDTO user, HttpContext httpContext, AuthenManager authenManager) =>
+
+        app.MapPost("/signin", (User_AuthenDTO user, HttpContext httpContext, AuthenManager authenManager) =>
         {
             try
             {

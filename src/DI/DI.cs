@@ -1,5 +1,6 @@
 using IdentityServices.Authentication;
 using Microsoft.EntityFrameworkCore;
+using UserServices;
 
 namespace DI;
 
@@ -17,5 +18,6 @@ public static class WebAppBuilderExtension
         });
         // builder.Services.AddSingleton<DbContext, AuthenDb>();
         builder.Services.AddScoped<AuthenManager>();
+        builder.Services.AddScoped<UserManipulator>();
     }
 }

@@ -1,19 +1,11 @@
 namespace Model.AuthenModels;
 
-public class User
+public class User : UserBase, IStudentUser, ITeacherUser
 {
-    public int Id { get; set; }
-    public string? UserName { get; set; }
-    public string? Hash_password { get; set; }
-    public string? Salt { get; set; }
-    public string? FirstName {get; set; }
-    public string? LastName {get; set; }
-    public DateTime DateOfBirth {get; set; }
-    public string? Gender { get; set; }
-    public string? Email {get; set; }
-    public string? Telephone {get; set; }
-    public string? Address {get; set; }
     public string? Parents {get; set; }
+    public string? TaxIdentificationNumber { get; set; }
+    public string? MajorSubject { get; set; }
+    public string? MinorSubject { get; set; }
     public List<Role_User>? Role_User { get; set; }
     public List<ResetPassToken>? ResetPassTokens { get; set; }
 }
