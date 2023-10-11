@@ -10,7 +10,7 @@ public class User_AuthenDTO
     public string? Password { get; set; }
 }
 
-public class StudentRq_DTO : UserBaseDTO, IStudentUser
+public class StudentRegister_DTO : UserBaseDTO, IStudentUser
 {
     public string? Password { get; set; }
     public string? Parents { get; set; }
@@ -35,13 +35,34 @@ public class StudentRs_DTO : UserBaseDTO, IStudentUser
     }
 }
 
-public class TeacherUserDTO : UserBaseDTO, ITeacherUser
+public class TeacherRegister_DTO : UserBaseDTO, ITeacherUser
 {
     public string? TaxIdentificationNumber { get; set; }
     public string? MajorSubject { get; set; }
     public string? MinorSubject { get; set; }
+    public string? Password { get; set; }
 }
 
+public class TeacherRs_DTO : UserBaseDTO, ITeacherUser
+{
+    public string? Id { get; set; }
+    public string? TaxIdentificationNumber { get; set; }
+    public string? MajorSubject { get; set; }
+    public string? MinorSubject { get; set; }
+    public TeacherRs_DTO() {}
+    public TeacherRs_DTO(User user) {
+        Id = user.Id.ToString();
+        FirstName = user.FirstName;
+        LastName = user.LastName;
+        DateOfBirth = JsonSerializer.Serialize(user.DateOfBirth);
+        Gender = user.Gender;
+        Email = user.Email;
+        Telephone = user.Telephone;
+        Address = user.Address;
+        MajorSubject = user.MajorSubject;
+        MinorSubject = user.MinorSubject;
+    }
+}
 public class EmailDTO
 {
     public string? EmailAddress { get; set; }

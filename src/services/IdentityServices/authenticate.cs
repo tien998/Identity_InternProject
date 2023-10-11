@@ -31,7 +31,7 @@ public class AuthenManager
         httpContext.Response.StatusCode = 200;
     }
 
-    public void Register_Student(StudentRq_DTO student, HttpContext httpContext)
+    public void Register_Student(StudentRegister_DTO student, HttpContext httpContext)
     {
         CreateHashPassPrinciple(student.Password!, out string hashPassword, out string saltBase64);
         User user = new()
@@ -43,15 +43,41 @@ public class AuthenManager
             Email = student.Email,
             Telephone = student.Telephone,
             Address = student.Address,
-            Parents = student.Parents,
             Hash_password = hashPassword,
             Salt = saltBase64,
+            Parents = student.Parents,
         };
         var userEntry = _authenDb!.User.Add(user);
         var user_inDB = userEntry.Entity;
 
         _authenDb!.SaveChanges();
         string roleID = RoleProvider.AddRoleStudent(user_inDB, _authenDb);
+        httpContext.Response.StatusCode = 200;
+    }
+
+    public void Register_Teacher(TeacherRegister_DTO teacher, HttpContext httpContext)
+    {
+        CreateHashPassPrinciple(teacher.Password!, out string hashPassword, out string saltBase64);
+        User user = new()
+        {
+            FirstName = teacher.FirstName,
+            LastName = teacher.LastName,
+            // DateOfBirth = teacher.DateOfBirth,
+            Gender = teacher.Gender,
+            Email = teacher.Email,
+            Telephone = teacher.Telephone,
+            Address = teacher.Address,
+            Hash_password = hashPassword,
+            Salt = saltBase64,
+            TaxIdentificationNumber = teacher.TaxIdentificationNumber,
+            MajorSubject = teacher.MajorSubject,
+            MinorSubject = teacher.MinorSubject,
+        };
+        var userEntry = _authenDb!.User.Add(user);
+        var user_inDB = userEntry.Entity;
+
+        _authenDb!.SaveChanges();
+        string roleID = RoleProvider.AddRoleTeacher(user_inDB, _authenDb);
         httpContext.Response.StatusCode = 200;
     }
 

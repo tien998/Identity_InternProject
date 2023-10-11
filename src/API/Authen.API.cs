@@ -21,6 +21,7 @@ public static class AuthenAPI
                 httpContext.Response.StatusCode = 401;
             }
         });
+
         app.MapPost("/sendEmailResetPassword", (EmailDTO email, AuthenManager authenManager, HttpContext httpContext) =>
         {
             try
@@ -33,6 +34,7 @@ public static class AuthenAPI
                 httpContext.Response.WriteAsync("Can't find the Email! Please check the correct of Email Address!");
             }
         });
+
         app.MapPost("/ResetPass", (ResetPassDTO resetPass, AuthenManager authenManager, HttpContext httpContext) =>
         {
             try
@@ -45,13 +47,56 @@ public static class AuthenAPI
             }
         });
 
-        // This API is a test of authorize 
-        app.MapGet("/author/{jwt}", (string jwt, AuthenManager authenManager, HttpContext httpContext) =>
+        // This API is a check the authorization of role
+        app.MapGet("/authorize-sa/{jwt}", (string jwt, AuthenManager authenManager, HttpContext httpContext) =>
         {
             // if Authorize success! Allow excute request. 
             // otherwise! Return 401
-            bool isAuthor = authenManager.AuthorizeChecking(jwt, RoleConventions.sa);
-            return isAuthor;
+            try
+            {
+                bool isAuthor = authenManager.AuthorizeChecking(jwt, RoleConventions.sa);
+                httpContext.Response.StatusCode = 200;
+                return isAuthor;
+            }
+            catch
+            {
+                httpContext.Response.StatusCode = 401;
+                return false;
+            }
+        });
+
+        app.MapGet("/authorize-teacher/{jwt}", (string jwt, AuthenManager authenManager, HttpContext httpContext) =>
+        {
+            // if Authorize success! Allow excute request. 
+            // otherwise! Return 401
+            try
+            {
+                bool isAuthor = authenManager.AuthorizeChecking(jwt, RoleConventions.teacher);
+                httpContext.Response.StatusCode = 200;
+                return isAuthor;
+            }
+            catch
+            {
+                httpContext.Response.StatusCode = 401;
+                return false;
+            }
+        });
+
+        app.MapGet("/authorize-student/{jwt}", (string jwt, AuthenManager authenManager, HttpContext httpContext) =>
+        {
+            // if Authorize success! Allow excute request. 
+            // otherwise! Return 401
+            try
+            {
+                bool isAuthor = authenManager.AuthorizeChecking(jwt, RoleConventions.student);
+                httpContext.Response.StatusCode = 200;
+                return isAuthor;
+            }
+            catch
+            {
+                httpContext.Response.StatusCode = 401;
+                return false;
+            }
         });
     }
 }

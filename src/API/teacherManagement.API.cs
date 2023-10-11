@@ -2,17 +2,16 @@ using IdentityServices.Authentication;
 using IdentityServices.Authentication.DTO;
 using UserServices;
 
-public static class StudentManagement
+public static class TeacherManagement
 {
-    public static void AddStudentManagement(this WebApplication app)
+    public static void AddTeacherManagement(this WebApplication app)
     {
-        app.Map("/student", app =>
+        app.Map("/teacher", app =>
         {
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                // 'index' to Pagination, 'take' is number of item that need to take
-                endpoints.MapGet("/getAll/{index}/{take}", (int index, int take, UserServices.UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
+                endpoints.MapGet("/GetAll/{index}/{take}", (int index, int take, UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
                 {
                     try
                     {
@@ -22,7 +21,7 @@ public static class StudentManagement
                         bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
                         if (isValid)
                         {
-                            httpContext.Response.WriteAsJsonAsync(userManipulator.GetStudents(index, take));
+                            httpContext.Response.WriteAsJsonAsync(userManipulator.GetTeachers(index, take));
                             httpContext.Response.StatusCode = 200;
                         }
                     }
@@ -32,7 +31,7 @@ public static class StudentManagement
                     }
                 });
 
-                endpoints.MapPost("/register", (StudentRegister_DTO user, HttpContext httpContext, AuthenManager authenManager) =>
+                endpoints.MapPost("/register", (TeacherRegister_DTO user, HttpContext httpContext, AuthenManager authenManager) =>
                 {
                     try
                     {
@@ -42,7 +41,7 @@ public static class StudentManagement
                         bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
                         if (isValid)
                         {
-                            authenManager.Register_Student(user, httpContext);
+                            authenManager.Register_Teacher(user, httpContext);
                             httpContext.Response.StatusCode = 200;
                         }
                     }
@@ -52,7 +51,7 @@ public static class StudentManagement
                     }
                 });
 
-                endpoints.MapPost("/edit", (StudentRs_DTO student, UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
+                endpoints.MapPost("/edit", (TeacherRs_DTO teacherRs_DTO, UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
                 {
                     try
                     {
@@ -62,7 +61,7 @@ public static class StudentManagement
                         bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
                         if (isValid)
                         {
-                            userManipulator.EditStudent(student);
+                            userManipulator.EditTeacher(teacherRs_DTO);
                             httpContext.Response.StatusCode = 200;
                         }
                     }
