@@ -11,18 +11,15 @@ public static class TeacherManagement
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/GetAll/{index}/{take}", (int index, int take, UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
+                endpoints.MapGet("/GetAll/{index}/{take}", (int index, int take, UserManipulator userManipulator, AuthenManager AuthenManager, HttpContext httpContext) =>
                 {
                     try
                     {
-                        string jwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-                        string jwt = jwtBearer.Split(" ")[1];
-
-                        bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
+                            httpContext.Response.StatusCode = 200;
                             httpContext.Response.WriteAsJsonAsync(userManipulator.GetTeachers(index, take));
-                            httpContext.Response.StatusCode = 200;
                         }
                     }
                     catch
@@ -31,17 +28,14 @@ public static class TeacherManagement
                     }
                 });
 
-                endpoints.MapPost("/register", (TeacherRegister_DTO user, HttpContext httpContext, AuthenManager authenManager) =>
+                endpoints.MapPost("/register", (TeacherRegister_DTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
                 {
                     try
                     {
-                        string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-                        string jwt = JwtBearer.Split(" ")[1];
-                        // Authorization function to check the role of user
-                        bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
-                            authenManager.Register_Teacher(user, httpContext);
+                            AuthenManager.Register_Teacher(user, httpContext);
                             httpContext.Response.StatusCode = 200;
                         }
                     }
@@ -51,14 +45,11 @@ public static class TeacherManagement
                     }
                 });
 
-                endpoints.MapPost("/edit", (TeacherRs_DTO teacherRs_DTO, UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
+                endpoints.MapPost("/edit", (TeacherRs_DTO teacherRs_DTO, UserManipulator userManipulator, AuthenManager AuthenManager, HttpContext httpContext) =>
                 {
                     try
                     {
-                        string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-                        string jwt = JwtBearer.Split(" ")[1];
-                        // Authorization function to check the role of user
-                        bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
                             userManipulator.EditTeacher(teacherRs_DTO);
@@ -71,14 +62,11 @@ public static class TeacherManagement
                     }
                 });
 
-                endpoints.MapGet("/delete/{userID}", (int userID, UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
+                endpoints.MapGet("/delete/{userID}", (int userID, UserManipulator userManipulator, AuthenManager AuthenManager, HttpContext httpContext) =>
                 {
                     try
                     {
-                        string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-                        string jwt = JwtBearer.Split(" ")[1];
-                        // Authorization function to check the role of user
-                        bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
                             userManipulator.DeleteUser(userID);

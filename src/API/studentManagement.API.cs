@@ -16,14 +16,11 @@ public static class StudentManagement
                 {
                     try
                     {
-                        string jwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-                        string jwt = jwtBearer.Split(" ")[1];
-
-                        bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
-                            httpContext.Response.WriteAsJsonAsync(userManipulator.GetStudents(index, take));
                             httpContext.Response.StatusCode = 200;
+                            httpContext.Response.WriteAsJsonAsync(userManipulator.GetStudents(index, take));
                         }
                     }
                     catch
@@ -36,10 +33,7 @@ public static class StudentManagement
                 {
                     try
                     {
-                        string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-                        string jwt = JwtBearer.Split(" ")[1];
-                        // Authorization function to check the role of user
-                        bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
                             authenManager.Register_Student(user, httpContext);
@@ -56,10 +50,7 @@ public static class StudentManagement
                 {
                     try
                     {
-                        string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-                        string jwt = JwtBearer.Split(" ")[1];
-                        // Authorization function to check the role of user
-                        bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
                             userManipulator.EditStudent(student);
@@ -76,10 +67,7 @@ public static class StudentManagement
                 {
                     try
                     {
-                        string JwtBearer = httpContext.Request.Headers["Authorization"].ToString();
-                        string jwt = JwtBearer.Split(" ")[1];
-                        // Authorization function to check the role of user
-                        bool isValid = authenManager.AuthorizeChecking(jwt, RoleConventions.sa, httpContext);
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
                             userManipulator.DeleteUser(userID);

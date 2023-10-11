@@ -1,3 +1,4 @@
+using IdentityServices;
 using IdentityServices.Authentication;
 using Microsoft.EntityFrameworkCore;
 using UserServices;
@@ -16,8 +17,8 @@ public static class WebAppBuilderExtension
         {
             opts.UseSqlServer(connectionString);
         });
-        // builder.Services.AddSingleton<DbContext, AuthenDb>();
         builder.Services.AddScoped<AuthenManager>();
         builder.Services.AddScoped<UserManipulator>();
+        // builder.Services.AddScoped<Authorize_SA>();
     }
 }

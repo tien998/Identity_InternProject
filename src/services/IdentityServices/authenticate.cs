@@ -8,8 +8,8 @@ namespace IdentityServices.Authentication;
 public class AuthenManager
 {
     AuthenDb? _authenDb;
-    string? _JwtSecreatKey;
-    string? _JwtvalidIssuer;
+    static string? _JwtSecreatKey;
+    static string? _JwtvalidIssuer;
     Aes? aesAlg;
 
     public void Register_Guest(string userName, string password, HttpContext httpContext)
@@ -185,6 +185,14 @@ public class AuthenManager
         saltBase64 = Convert.ToBase64String(saltKey).ToString();
     }
 
+    public static bool IsAuthorize(HttpContext httpContext, string role)
+    {
+        Console.WriteLine("________________________________: " + _JwtSecreatKey +" : "+_JwtvalidIssuer);
+        string jwtBearer = httpContext.Request.Headers["Authorization"].ToString();
+        string jwt = jwtBearer.Split(" ")[1];
+        bool isValid = AuthorizeChecking(jwt, role, httpContext);
+        return isValid;
+    }
 
     /// <summary>
     /// Authorization Functions that validate JWT and check the role of JWT 
@@ -192,7 +200,7 @@ public class AuthenManager
     /// <param name="jwt"></param>
     /// <param name="role_to_author">Take roles list from `IdentityServices.Authentication.DTO.RoleConventions`</param>
     /// <returns>`true` or `false`</returns>
-    public bool AuthorizeChecking(string jwt, string role_to_author)
+    public static bool AuthorizeChecking(string jwt, string role_to_author)
     {
         ClaimsPrincipal claimsPrincipal = Identity.ValidateJWT(jwt, _JwtSecreatKey!, _JwtvalidIssuer!);
         Dictionary<string, Claim> claims = claimsPrincipal.Claims.ToDictionary(e => e.Type);
@@ -213,7 +221,7 @@ public class AuthenManager
     /// <param name="role_to_author">Take roles list from `IdentityServices.Authentication.DTO.RolesList`</param>
     /// <param name="httpContext"></param>
     /// <returns>`true` or `false`</returns>
-    public bool AuthorizeChecking(string jwt, string role_to_author, HttpContext httpContext)
+    public static bool AuthorizeChecking(string jwt, string role_to_author, HttpContext httpContext)
     {
         try
         {

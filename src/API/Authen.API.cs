@@ -5,16 +5,16 @@ public static class AuthenAPI
 {
     public static void AddAuthenAPI(this WebApplication app)
     {
-        app.MapPost("/register", (User_AuthenDTO user, HttpContext httpContext, AuthenManager authenManager) =>
+        app.MapPost("/register", (User_AuthenDTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
         {
-            authenManager.Register_Guest(user.UserName!, user.Password!, httpContext);
+            AuthenManager.Register_Guest(user.UserName!, user.Password!, httpContext);
         });
 
-        app.MapPost("/signin", (User_AuthenDTO user, HttpContext httpContext, AuthenManager authenManager) =>
+        app.MapPost("/signin", (User_AuthenDTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
         {
             try
             {
-                authenManager.SignIn(user.UserName!, user.Password!, httpContext);
+                AuthenManager.SignIn(user.UserName!, user.Password!, httpContext);
             }
             catch
             {
@@ -22,11 +22,11 @@ public static class AuthenAPI
             }
         });
 
-        app.MapPost("/sendEmailResetPassword", (EmailDTO email, AuthenManager authenManager, HttpContext httpContext) =>
+        app.MapPost("/sendEmailResetPassword", (EmailDTO email, AuthenManager AuthenManager, HttpContext httpContext) =>
         {
             try
             {
-                authenManager.SendEmailResetPassword(email.EmailAddress!);
+                AuthenManager.SendEmailResetPassword(email.EmailAddress!);
                 httpContext.Response.WriteAsync("The URL to confirm had been send! Please check you Email!");
             }
             catch
@@ -35,11 +35,11 @@ public static class AuthenAPI
             }
         });
 
-        app.MapPost("/ResetPass", (ResetPassDTO resetPass, AuthenManager authenManager, HttpContext httpContext) =>
+        app.MapPost("/ResetPass", (ResetPassDTO resetPass, AuthenManager AuthenManager, HttpContext httpContext) =>
         {
             try
             {
-                authenManager.ValidateAndResetPassword(resetPass.GUID!, resetPass.UserID, resetPass.Password!, httpContext);
+                AuthenManager.ValidateAndResetPassword(resetPass.GUID!, resetPass.UserID, resetPass.Password!, httpContext);
             }
             catch
             {
@@ -48,13 +48,13 @@ public static class AuthenAPI
         });
 
         // This API is a check the authorization of role
-        app.MapGet("/authorize-sa/{jwt}", (string jwt, AuthenManager authenManager, HttpContext httpContext) =>
+        app.MapGet("/authorize-sa", (AuthenManager AuthenManager, HttpContext httpContext) =>
         {
             // if Authorize success! Allow excute request. 
             // otherwise! Return 401
             try
             {
-                bool isAuthor = authenManager.AuthorizeChecking(jwt, RoleConventions.sa);
+                bool isAuthor = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                 httpContext.Response.StatusCode = 200;
                 return isAuthor;
             }
@@ -65,13 +65,11 @@ public static class AuthenAPI
             }
         });
 
-        app.MapGet("/authorize-teacher/{jwt}", (string jwt, AuthenManager authenManager, HttpContext httpContext) =>
+        app.MapGet("/authorize-teacher", (AuthenManager AuthenManager, HttpContext httpContext) =>
         {
-            // if Authorize success! Allow excute request. 
-            // otherwise! Return 401
             try
             {
-                bool isAuthor = authenManager.AuthorizeChecking(jwt, RoleConventions.teacher);
+                bool isAuthor = AuthenManager.IsAuthorize(httpContext, RoleConventions.teacher);
                 httpContext.Response.StatusCode = 200;
                 return isAuthor;
             }
@@ -82,13 +80,11 @@ public static class AuthenAPI
             }
         });
 
-        app.MapGet("/authorize-student/{jwt}", (string jwt, AuthenManager authenManager, HttpContext httpContext) =>
+        app.MapGet("/authorize-student", (AuthenManager AuthenManager, HttpContext httpContext) =>
         {
-            // if Authorize success! Allow excute request. 
-            // otherwise! Return 401
             try
             {
-                bool isAuthor = authenManager.AuthorizeChecking(jwt, RoleConventions.student);
+                bool isAuthor = AuthenManager.IsAuthorize(httpContext, RoleConventions.student);
                 httpContext.Response.StatusCode = 200;
                 return isAuthor;
             }
