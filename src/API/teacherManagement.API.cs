@@ -28,6 +28,24 @@ public static class TeacherManagement
                     }
                 });
 
+                endpoints.MapGet("/getUser/{id}", (int id, UserServices.UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
+                {
+                    try
+                    {
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
+                        if (isValid)
+                        {
+                            httpContext.Response.StatusCode = 200;
+                            TeacherRs_DTO teacher = new(userManipulator.GetUser(id));
+                            httpContext.Response.WriteAsJsonAsync(teacher);
+                        }
+                    }
+                    catch
+                    {
+                        httpContext.Response.StatusCode = 401;
+                    }
+                });
+
                 endpoints.MapPost("/register", (TeacherRegister_DTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
                 {
                     try

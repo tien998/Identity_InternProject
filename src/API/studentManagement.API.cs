@@ -29,6 +29,24 @@ public static class StudentManagement
                     }
                 });
 
+                endpoints.MapGet("/getUser/{id}", (int id, UserServices.UserManipulator userManipulator, AuthenManager authenManager, HttpContext httpContext) =>
+                {
+                    try
+                    {
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
+                        if (isValid)
+                        {
+                            httpContext.Response.StatusCode = 200;
+                            StudentRs_DTO student = new(userManipulator.GetUser(id));
+                            httpContext.Response.WriteAsJsonAsync(student);
+                        }
+                    }
+                    catch
+                    {
+                        httpContext.Response.StatusCode = 401;
+                    }
+                });
+
                 endpoints.MapPost("/register", (StudentRegister_DTO user, HttpContext httpContext, AuthenManager authenManager) =>
                 {
                     try

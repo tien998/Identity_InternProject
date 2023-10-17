@@ -21,6 +21,14 @@ public class UserManipulator
         return students;
     }
 
+    public User GetUser(int id)
+    {
+        var user = (from usr in _authenDb.User
+                     where usr.Id == id
+                     select usr).FirstOrDefault();
+        return user!;
+    }
+
     public void EditStudent(StudentRs_DTO student)
     {
         var users = (from usr in _authenDb.User
