@@ -187,7 +187,6 @@ public class AuthenManager
 
     public static bool IsAuthorize(HttpContext httpContext, string role)
     {
-        Console.WriteLine("________________________________: " + _JwtSecreatKey +" : "+_JwtvalidIssuer);
         string jwtBearer = httpContext.Request.Headers["Authorization"].ToString();
         string jwt = jwtBearer.Split(" ")[1];
         bool isValid = AuthorizeChecking(jwt, role, httpContext);

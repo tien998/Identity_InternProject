@@ -48,43 +48,13 @@ public static class AuthenAPI
         });
 
         // This API is a check the authorization of role
-        app.MapGet("/authorize-sa", (AuthenManager AuthenManager, HttpContext httpContext) =>
+        app.MapGet("/authorize/{role}", (string role, AuthenManager AuthenManager, HttpContext httpContext) =>
         {
             // if Authorize success! Allow excute request. 
             // otherwise! Return 401
             try
             {
-                bool isAuthor = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
-                httpContext.Response.StatusCode = 200;
-                return isAuthor;
-            }
-            catch
-            {
-                httpContext.Response.StatusCode = 401;
-                return false;
-            }
-        });
-
-        app.MapGet("/authorize-teacher", (AuthenManager AuthenManager, HttpContext httpContext) =>
-        {
-            try
-            {
-                bool isAuthor = AuthenManager.IsAuthorize(httpContext, RoleConventions.teacher);
-                httpContext.Response.StatusCode = 200;
-                return isAuthor;
-            }
-            catch
-            {
-                httpContext.Response.StatusCode = 401;
-                return false;
-            }
-        });
-
-        app.MapGet("/authorize-student", (AuthenManager AuthenManager, HttpContext httpContext) =>
-        {
-            try
-            {
-                bool isAuthor = AuthenManager.IsAuthorize(httpContext, RoleConventions.student);
+                bool isAuthor = AuthenManager.IsAuthorize(httpContext, role);
                 httpContext.Response.StatusCode = 200;
                 return isAuthor;
             }
