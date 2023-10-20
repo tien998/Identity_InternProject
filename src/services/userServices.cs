@@ -52,6 +52,25 @@ public class UserManipulator
         return teacher;
     }
 
+    public TeacherDropdown_DTO[] GetTeachers_DropdownDTO()
+    {
+        var users = (from usr in _authenDb.User
+                     join ru in _authenDb.Role_User on usr.Id equals ru.User_Id
+                     where ru.Role_Id == RoleConventions.teacher
+                     select new{usr.Id, usr.FirstName, usr.LastName}).ToArray();
+        var teacher = new TeacherDropdown_DTO[users.Length];
+        for (int i = 0; i < users.Length; i++)
+        {
+            teacher[i] = new TeacherDropdown_DTO()
+            {
+                Id = users[i].Id,
+                FirstName = users[i].FirstName,
+                LastName = users[i].LastName
+            };
+        }
+        return teacher;
+    }
+
     public void EditTeacher(TeacherRs_DTO teacher)
     {
         var users = (from usr in _authenDb.User

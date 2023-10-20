@@ -46,6 +46,23 @@ public static class TeacherManagement
                     }
                 });
 
+                endpoints.MapGet("/GetAll/dropdown", (UserManipulator userManipulator, AuthenManager AuthenManager, HttpContext httpContext) =>
+                {
+                    try
+                    {
+                        bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
+                        if (isValid)
+                        {
+                            httpContext.Response.StatusCode = 200;
+                            httpContext.Response.WriteAsJsonAsync(userManipulator.GetTeachers_DropdownDTO());
+                        }
+                    }
+                    catch
+                    {
+                        httpContext.Response.StatusCode = 401;
+                    }
+                });
+
                 endpoints.MapPost("/register", (TeacherRegister_DTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
                 {
                     try
