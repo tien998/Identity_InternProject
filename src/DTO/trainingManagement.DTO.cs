@@ -1,5 +1,3 @@
-using Model.AuthenModels;
-
 namespace IdentityServices.Authentication.DTO;
 
 public class TeacherDropdown_DTO
