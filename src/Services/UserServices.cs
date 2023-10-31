@@ -7,16 +7,16 @@ public class UserManipulator
 {
     AuthenDb _authenDb;
 
-    public StudentRs_DTO[] GetStudents(int index, int take)
+    public StudentRsDTO[] GetStudents(int index, int take)
     {
         var users = (from usr in _authenDb.User
                      join ru in _authenDb.Role_User on usr.Id equals ru.User_Id
                      where ru.Role_Id == RoleConventions.student
                      select usr).OrderBy(e => e.Id).Skip(index * take).Take(take).ToArray();
-        var students = new StudentRs_DTO[users.Length];
+        var students = new StudentRsDTO[users.Length];
         for (int i = 0; i < users.Length; i++)
         {
-            students[i] = new StudentRs_DTO(users[i]);
+            students[i] = new StudentRsDTO(users[i]);
         }
         return students;
     }
@@ -29,7 +29,7 @@ public class UserManipulator
         return user!;
     }
 
-    public void EditStudent(StudentRs_DTO student)
+    public void EditStudent(StudentRsDTO student)
     {
         var users = (from usr in _authenDb.User
                      where usr.Id.ToString() == student.Id
@@ -38,16 +38,16 @@ public class UserManipulator
         _authenDb.SaveChanges();
     }
 
-    public TeacherRs_DTO[] GetTeachers(int index, int take)
+    public TeacherRsDTO[] GetTeachers(int index, int take)
     {
         var users = (from usr in _authenDb.User
                      join ru in _authenDb.Role_User on usr.Id equals ru.User_Id
                      where ru.Role_Id == RoleConventions.teacher
                      select usr).OrderBy(e => e.Id).Skip(index * take).Take(take).ToArray();
-        var teacher = new TeacherRs_DTO[users.Length];
+        var teacher = new TeacherRsDTO[users.Length];
         for (int i = 0; i < users.Length; i++)
         {
-            teacher[i] = new TeacherRs_DTO(users[i]);
+            teacher[i] = new TeacherRsDTO(users[i]);
         }
         return teacher;
     }
@@ -71,7 +71,7 @@ public class UserManipulator
         return teacher;
     }
 
-    public void EditTeacher(TeacherRs_DTO teacher)
+    public void EditTeacher(TeacherRsDTO teacher)
     {
         var users = (from usr in _authenDb.User
                      where usr.Id.ToString() == teacher.Id

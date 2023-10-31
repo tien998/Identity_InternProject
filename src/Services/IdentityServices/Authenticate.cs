@@ -31,7 +31,7 @@ public class AuthenManager
         httpContext.Response.StatusCode = 200;
     }
 
-    public void Register_Student(StudentRegister_DTO student, HttpContext httpContext)
+    public void Register_Student(StudentRegisterDTO student, HttpContext httpContext)
     {
         CreateHashPassPrinciple(student.Password!, out string hashPassword, out string saltBase64);
         User user = new()
@@ -55,7 +55,7 @@ public class AuthenManager
         httpContext.Response.StatusCode = 200;
     }
 
-    public void Register_Teacher(TeacherRegister_DTO teacher, HttpContext httpContext)
+    public void Register_Teacher(TeacherRegisterDTO teacher, HttpContext httpContext)
     {
         CreateHashPassPrinciple(teacher.Password!, out string hashPassword, out string saltBase64);
         User user = new()

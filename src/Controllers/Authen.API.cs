@@ -5,12 +5,12 @@ public static class AuthenAPI
 {
     public static void AddAuthenAPI(this WebApplication app)
     {
-        app.MapPost("/register", (User_AuthenDTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
+        app.MapPost("/register", (UserAuthenDTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
         {
             AuthenManager.Register_Guest(user.UserName!, user.Password!, httpContext);
         });
 
-        app.MapPost("/signin", (User_AuthenDTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
+        app.MapPost("/signin", (UserAuthenDTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
         {
             try
             {

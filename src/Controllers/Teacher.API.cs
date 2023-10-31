@@ -36,7 +36,7 @@ public static class TeacherManagement
                         if (isValid)
                         {
                             httpContext.Response.StatusCode = 200;
-                            TeacherRs_DTO teacher = new(userManipulator.GetUser(id));
+                            TeacherRsDTO teacher = new(userManipulator.GetUser(id));
                             httpContext.Response.WriteAsJsonAsync(teacher);
                         }
                     }
@@ -63,7 +63,7 @@ public static class TeacherManagement
                     }
                 });
 
-                endpoints.MapPost("/register", (TeacherRegister_DTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
+                endpoints.MapPost("/register", (TeacherRegisterDTO user, HttpContext httpContext, AuthenManager AuthenManager) =>
                 {
                     try
                     {
@@ -80,14 +80,14 @@ public static class TeacherManagement
                     }
                 });
 
-                endpoints.MapPost("/edit", (TeacherRs_DTO teacherRs_DTO, UserManipulator userManipulator, AuthenManager AuthenManager, HttpContext httpContext) =>
+                endpoints.MapPost("/edit", (TeacherRsDTO teacherRsDTO, UserManipulator userManipulator, AuthenManager AuthenManager, HttpContext httpContext) =>
                 {
                     try
                     {
                         bool isValid = AuthenManager.IsAuthorize(httpContext, RoleConventions.sa);
                         if (isValid)
                         {
-                            userManipulator.EditTeacher(teacherRs_DTO);
+                            userManipulator.EditTeacher(teacherRsDTO);
                             httpContext.Response.StatusCode = 200;
                         }
                     }

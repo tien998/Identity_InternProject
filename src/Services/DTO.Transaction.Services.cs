@@ -5,7 +5,7 @@ namespace IdentityServices.Authentication.DTO;
 
 public static class DTO_Transaction
 {
-    static public void Transact(User user, StudentRs_DTO DTO)
+    static public void Transact(User user, StudentRsDTO DTO)
     {
             user.FirstName = DTO.FirstName;
             user.LastName = DTO.LastName;
@@ -17,7 +17,7 @@ public static class DTO_Transaction
             user.Parents = DTO.Parents;
     }
 
-    static public void Transact(User user, TeacherRs_DTO DTO)
+    static public void Transact(User user, TeacherRsDTO DTO)
     {
             user.FirstName = DTO.FirstName;
             user.LastName = DTO.LastName;

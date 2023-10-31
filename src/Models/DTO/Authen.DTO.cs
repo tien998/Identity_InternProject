@@ -4,25 +4,25 @@ using Model.AuthenModels;
 
 namespace IdentityServices.Authentication.DTO;
 
-public class User_AuthenDTO
+public class UserAuthenDTO
 {
     public string? UserName { get; set; }
     public string? Password { get; set; }
 }
 
-public class StudentRegister_DTO : UserBaseDTO, IStudentUser
+public class StudentRegisterDTO : UserBaseDTO, IStudentUser
 {
     public string? Password { get; set; }
     public string? Parents { get; set; }
     public string? Avatar { get; set; }
 }
 
-public class StudentRs_DTO : UserBaseDTO, IStudentUser
+public class StudentRsDTO : UserBaseDTO, IStudentUser
 {
     public string? Id { get; set; }
     public string? Parents { get; set; }
-    public StudentRs_DTO() {}
-    public StudentRs_DTO(User user) {
+    public StudentRsDTO() {}
+    public StudentRsDTO(User user) {
         Id = user.Id.ToString();
         FirstName = user.FirstName;
         LastName = user.LastName;
@@ -35,7 +35,7 @@ public class StudentRs_DTO : UserBaseDTO, IStudentUser
     }
 }
 
-public class TeacherRegister_DTO : UserBaseDTO, ITeacherUser
+public class TeacherRegisterDTO : UserBaseDTO, ITeacherUser
 {
     public string? TaxIdentificationNumber { get; set; }
     public string? MajorSubject { get; set; }
@@ -43,14 +43,14 @@ public class TeacherRegister_DTO : UserBaseDTO, ITeacherUser
     public string? Password { get; set; }
 }
 
-public class TeacherRs_DTO : UserBaseDTO, ITeacherUser
+public class TeacherRsDTO : UserBaseDTO, ITeacherUser
 {
     public string? Id { get; set; }
     public string? TaxIdentificationNumber { get; set; }
     public string? MajorSubject { get; set; }
     public string? MinorSubject { get; set; }
-    public TeacherRs_DTO() {}
-    public TeacherRs_DTO(User user) {
+    public TeacherRsDTO() {}
+    public TeacherRsDTO(User user) {
         Id = user.Id.ToString();
         FirstName = user.FirstName;
         LastName = user.LastName;
